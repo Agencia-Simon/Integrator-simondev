@@ -80,15 +80,8 @@ function isd_enqueue_scripts($hook) {
     }
 
     // Encolar los estilos de Bootstrap
-    function enqueue_custom_scripts() {
-        // Encolar Bootstrap CSS
-        wp_enqueue_style('bootstrap-css', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
-    
-        // Encolar Bootstrap JS
-        wp_enqueue_script('bootstrap-js', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js', array('jquery'), null, true);
-    }
-    add_action('wp_enqueue_scripts', 'enqueue_custom_scripts');
-    
+    wp_enqueue_style('bootstrap-css', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
+    wp_enqueue_script('bootstrap-js', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js', array('jquery'), null, true);
 
     // Encolar el script de Chart.js para el gráfico
     wp_enqueue_script('chart-js', 'https://cdn.jsdelivr.net/npm/chart.js', array(), null, true);
