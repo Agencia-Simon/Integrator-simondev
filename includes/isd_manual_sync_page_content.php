@@ -98,7 +98,7 @@ function isd_manual_sync_page_content()
 function isd_register_log($api_response, $type)
 {
     global $wpdb;
-    $table_name_logs = $wpdb->prefix . 'simondev_integratorlogs';
+    $table_name_logs = $wpdb->prefix . 'isd_logs';
     $data = array(
         'type' => $type, // o 'client', 'invoice', según corresponda
         'error' => $api_response['error'] ? 1 : 0, // 1 para true, 0 para false
@@ -123,7 +123,7 @@ function isd_register_log($api_response, $type)
 function isd_register_fails($log_id, $fails_data)
 {
     global $wpdb;
-    $table_name_fails = $wpdb->prefix . 'simondev_integratorfails';
+    $table_name_fails = $wpdb->prefix . 'isd_logs';
 
     foreach ($fails_data as $fail) {
         $wpdb->insert(
