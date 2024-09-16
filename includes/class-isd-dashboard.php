@@ -21,6 +21,7 @@ function isd_dashboard_page_content() {
     $success_by_day = $wpdb->get_results("
         SELECT DATE(created_at) as date, SUM(created_count + updated_count) as total_success
         FROM $table_logs
+        WHERE error = 1
         GROUP BY DATE(created_at)
         ORDER BY DATE(created_at) DESC
         LIMIT 5
@@ -30,6 +31,7 @@ function isd_dashboard_page_content() {
     $fails_by_day = $wpdb->get_results("
         SELECT DATE(created_at) as date, SUM(failed_count) as total_fails
         FROM $table_logs
+        WHERE error = 1
         GROUP BY DATE(created_at)
         ORDER BY DATE(created_at) DESC
         LIMIT 5
@@ -63,7 +65,7 @@ function isd_dashboard_page_content() {
     $avg_execution_time = $wpdb->get_var( "
         SELECT AVG(CAST(SUBSTRING_INDEX(execution_time, ' ', 1) AS DECIMAL(10,2))) 
         FROM $table_logs 
-        WHERE error = false
+        WHERE error = true
     " );
     $avg_execution_time = round($avg_execution_time, 2);
 
@@ -231,14 +233,14 @@ function isd_dashboard_page_content() {
                     backgroundColor: 'rgba(153, 102, 255, 0.2)',
                     fill: false,
                 }, {
-                    label: 'Tareas Exitosas',
+                    label: 'Creados / Actualizados',
                     data: <?php echo json_encode($product_data['Success']); ?>,
                     borderColor: 'rgba(75, 192, 192, 1)',
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     fill: false,
                 },
                 {
-                    label: 'Tareas Fallidas',
+                    label: 'Elementos Fallidos',
                     data: <?php echo json_encode($product_data['Fails']); ?>,
                     //orange
                     borderColor: 'rgba(233, 58, 6, 0.8)',
