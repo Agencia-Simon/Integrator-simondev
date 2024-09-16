@@ -35,7 +35,7 @@ function isd_manual_sync_page_content()
         if ($status_code == 200) {
             $body = wp_remote_retrieve_body($response);
             $api_response = json_encode(json_decode($body), JSON_PRETTY_PRINT);
-            $product_register = isd_register_log($api_response);
+            $product_register = isd_register_log($api_response, 'product');
             $log_id = $product_register['log_id'];
             // Si hay fallos, registrar los detalles de los fallos
             if ($api_response['Fails_sync'] > 0) {
@@ -95,16 +95,16 @@ function isd_manual_sync_page_content()
 }
 
 // Registrar un nuevo log en la tabla de logs
-function isd_register_log($api_response)
+function isd_register_log($api_response, $type)
 {
     global $wpdb;
     $table_name_logs = $wpdb->prefix . 'simondev_integratorlogs';
     $data = array(
-        'type' => 'product', // o 'client', 'invoice', según corresponda
+        'type' => $type, // o 'client', 'invoice', según corresponda
         'error' => $api_response['error'] ? 1 : 0, // 1 para true, 0 para false
         'message' => $api_response['message'],
         'execution_time' => (float) $api_response['execution_time'],
-        'created_count' => (int) $api_response['Synchronized_products'],
+        'created_count' => (int) $api_response['created_products'],
         'updated_count' => (int) $api_response['updated_Count'],
         'failed_count' => (int) $api_response['Fails_sync']
     );
