@@ -62,22 +62,16 @@ function isd_manual_sync_page_content()
                 <div class="card">
                     <div class="card-header">Resultados</div>
                     <div class="card-body">
-                        <strong><?php echo esc_html($result['message'])??"Problemas con la sincronización, vuelva a intentar."; ?></strong>
+                        <strong><?php echo esc_html($result['message']); ?></strong>
+                        <br>
                         <strong>Tiempo de ejecución:</strong><?php echo esc_html($result['execution_time']); ?>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">Tiempo de Ejecución</div>
-                    <div class="card-body">
-                        
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-header">Productos Sincronizados</div>
                     <div class="card-body">
-                        <strong><?php echo esc_html($result['Synchronized_products']); ?></strong>
+                        <strong><?php echo esc_html($result['created_products']); ?></strong>
                     </div>
                 </div>
 
