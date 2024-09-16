@@ -47,47 +47,53 @@ function isd_manual_sync_page_content()
         }
     }
     ?>
+    <style>
+    .card-container .card {
+        margin-left: 50px;
+    }
+    </style>
     <div class="wrap">
         <h1>Proceso de Sincronización Manual</h1>
         <div id="sync-container">
             <p>Sincronización completada.</p>
             <!-- Productos -->
             <h3 class="mt-3 mb-3">Productos</h3>
-            <div class="row">
-                        <div class="card">
-                            <div class="card-header">Mensaje</div>
-                            <div class="card-body">
-                                <strong><?php echo esc_html($result['message']); ?></strong>
-                            </div>
-                        </div>
+            <div class="row card-container">    
+                <div class="card">
+                    <div class="card-header">Resultados</div>
+                    <div class="card-body">
+                        <strong><?php echo esc_html($result['message'])??"Problemas con la sincronización, vuelva a intentar."; ?></strong>
+                        <strong>Tiempo de ejecución:</strong><?php echo esc_html($result['execution_time']); ?>
+                    </div>
+                </div>
 
-                        <div class="card">
-                            <div class="card-header">Tiempo de Ejecución</div>
-                            <div class="card-body">
-                                <strong><?php echo esc_html($result['execution_time']); ?></strong>
-                            </div>
-                        </div>
+                <div class="card">
+                    <div class="card-header">Tiempo de Ejecución</div>
+                    <div class="card-body">
+                        
+                    </div>
+                </div>
 
-                        <div class="card">
-                            <div class="card-header">Productos Sincronizados</div>
-                            <div class="card-body">
-                                <strong><?php echo esc_html($result['Synchronized_products']); ?></strong>
-                            </div>
-                        </div>
+                <div class="card">
+                    <div class="card-header">Productos Sincronizados</div>
+                    <div class="card-body">
+                        <strong><?php echo esc_html($result['Synchronized_products']); ?></strong>
+                    </div>
+                </div>
 
-                        <div class="card">
-                            <div class="card-header">Productos Actualizados</div>
-                            <div class="card-body">
-                                <strong><?php echo esc_html($result['updated_Count']); ?></strong>
-                            </div>
-                        </div>
+                <div class="card">
+                    <div class="card-header">Productos Actualizados</div>
+                    <div class="card-body">
+                        <strong><?php echo esc_html($result['updated_Count']); ?></strong>
+                    </div>
+                </div>
 
-                        <div class="card">
-                            <div class="card-header">Fallos de Sincronización</div>
-                            <div class="card-body">
-                                <strong><?php echo esc_html($result['Fails_sync']); ?></strong>
-                            </div>
-                        </div>
+                <div class="card">
+                    <div class="card-header">Fallos de Sincronización</div>
+                    <div class="card-body">
+                        <strong><?php echo esc_html($result['Fails_sync']); ?></strong>
+                    </div>
+                </div>
 
             </div>
             <a href="<?php echo admin_url('admin.php?page=isd_dashboard'); ?>" class="btn btn-info mt-4">Regresar al
