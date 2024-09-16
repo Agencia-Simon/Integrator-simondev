@@ -211,21 +211,23 @@ function isd_dashboard_page_content() {
         </div>
     </div>
     <!-- Modal -->
-    <div class="modal fade" id="syncModal" tabindex="-1" aria-labelledby="syncModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+    <div class="modal" id="syncModal" tabindex="-1" role="dialog" aria-labelledby="syncModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="syncModalLabel">Programar Sincronización Automática</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body">
                     <form id="sync-settings-form">
-                        <div class="mb-3">
-                            <label for="enable-sync" class="form-label">Programar sincronización automática</label>
+                        <div class="form-group">
+                            <label for="enable-sync">Programar sincronización automática</label>
                             <input type="checkbox" id="enable-sync" name="enable_sync" class="form-check-input">
                         </div>
-                        <div class="mb-3" id="interval-group" style="display:none;">
-                            <label for="sync-interval" class="form-label">Intervalo de tiempo (en minutos)</label>
+                        <div class="form-group" id="interval-group" style="display:none;">
+                            <label for="sync-interval">Intervalo de tiempo (en minutos)</label>
                             <input type="number" id="sync-interval" name="sync_interval" class="form-control" min="1" placeholder="Ej. 30">
                         </div>
                         <button type="submit" class="btn btn-primary">Guardar Configuración</button>
