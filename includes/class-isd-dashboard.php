@@ -3,12 +3,6 @@ global $wpdb;
 
 function isd_dashboard_page_content() {
 
-    // Datos de ejemplo para el gráfico
-    $product_data = [
-        'Tasks' => [10, 20, 15, 25, 30],
-        'Fails' => [5, 15, 20, 10, 25],
-    ];
-
     global $wpdb;
 
     // Nombre de las tablas

@@ -101,7 +101,7 @@ function isd_register_log($api_response, $type)
     $table_name_logs = $wpdb->prefix . 'isd_logs';
     $data = array(
         'type' => $type, // o 'client', 'invoice', según corresponda
-        'error' => $api_response['error'] ? 1 : 0, // 1 para true, 0 para false
+        'error' => $api_response['error'] ? 0 : 1,
         'message' => $api_response['message'],
         'execution_time' => (float) $api_response['execution_time'],
         'created_count' => (int) $api_response['created_products'],
