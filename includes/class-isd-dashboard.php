@@ -101,9 +101,9 @@ function isd_dashboard_page_content() {
             </div>
 
             <div class="col-md-12 mt-3 mb-3">
-                    <a id="sync-button" href="#" class="btn btn-secondary">Sincronización Manual <span id="spinner"></span></a>
-                    <button class="btn btn-secondary">Programar Sincronizaciones</button>
-                </div>
+                <a id="sync-button" href="#" class="btn btn-secondary">Sincronización Manual <span id="spinner"></span></a>
+                <button id="schedule-button" class="btn btn-secondary">Programar Sincronizaciones</button>
+            </div>
             
             <hr>
 
@@ -139,10 +139,10 @@ function isd_dashboard_page_content() {
                     <canvas id="productChart"></canvas>
                 </div>
 
-                <div class="col-md-12 mb-3 mt-3">
+                <!--div class="col-md-12 mb-3 mt-3">
                     <button class="btn btn-primary">Reintentar Sincronizaciones</button>
-                </div>
-
+                </div-->
+                <hr>
                 <div class="col-md-12 mb-3">
                     <h5 class="card-title">Productos No Sincronizados</h5>
                     <div class="table-responsive" style="max-height: 900px;">
@@ -180,7 +180,7 @@ function isd_dashboard_page_content() {
                                             $product_obj = wc_get_product($product);
                                             $nombre_producto = $product_obj->get_name();
                                         } else {
-                                            $nombre_producto = 'Producto no encontrado';
+                                            $nombre_producto = '---';
                                         }
 
                                         // Agregar los datos a la lista final
@@ -189,7 +189,7 @@ function isd_dashboard_page_content() {
                                             'nombre' => $nombre_producto,
                                             'sku' => $fail->sku,
                                             'error' => $fail->message,
-                                            'fecha' => current_time('Y-m-d'), // Puedes cambiarlo si tienes una fecha específica
+                                            'fecha' => $fail->datetime,
                                         ];
                                     }
                                 }
@@ -210,8 +210,69 @@ function isd_dashboard_page_content() {
             </div>
         </div>
     </div>
+    <!-- Modal -->
+    <div class="modal fade" id="syncModal" tabindex="-1" aria-labelledby="syncModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="syncModalLabel">Programar Sincronización Automática</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="sync-settings-form">
+                        <div class="mb-3">
+                            <label for="enable-sync" class="form-label">Programar sincronización automática</label>
+                            <input type="checkbox" id="enable-sync" name="enable_sync" class="form-check-input">
+                        </div>
+                        <div class="mb-3" id="interval-group" style="display:none;">
+                            <label for="sync-interval" class="form-label">Intervalo de tiempo (en minutos)</label>
+                            <input type="number" id="sync-interval" name="sync_interval" class="form-control" min="1" placeholder="Ej. 30">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar Configuración</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.getElementById('enable-sync').addEventListener('change', function () {
+            var intervalGroup = document.getElementById('interval-group');
+            if (this.checked) {
+                intervalGroup.style.display = 'block';
+            } else {
+                intervalGroup.style.display = 'none';
+            }
+        });
+
+        // Captura el evento de envío del formulario
+        document.getElementById('sync-settings-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            var enableSync = document.getElementById('enable-sync').checked;
+            var syncInterval = document.getElementById('sync-interval').value;
+            
+            // Envía los datos a WordPress usando AJAX
+            jQuery.ajax({
+                url: ajaxurl, // ajaxurl es una variable global de WordPress
+                method: 'POST',
+                data: {
+                    action: 'save_sync_settings',
+                    enable_sync: enableSync,
+                    sync_interval: syncInterval
+                },
+                success: function(response) {
+                    alert('Configuración guardada correctamente');
+                    jQuery('#syncModal').modal('hide');
+                },
+                error: function() {
+                    alert('Error al guardar la configuración');
+                }
+            });
+        });
+    </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var spinner = document.getElementById('spinner');
