@@ -80,7 +80,15 @@ function isd_enqueue_scripts($hook) {
     }
 
     // Encolar los estilos de Bootstrap
-    wp_enqueue_style('bootstrap-css', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
+    function enqueue_custom_scripts() {
+        // Encolar Bootstrap CSS
+        wp_enqueue_style('bootstrap-css', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css');
+    
+        // Encolar Bootstrap JS
+        wp_enqueue_script('bootstrap-js', 'https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js', array('jquery'), null, true);
+    }
+    add_action('wp_enqueue_scripts', 'enqueue_custom_scripts');
+    
 
     // Encolar el script de Chart.js para el gráfico
     wp_enqueue_script('chart-js', 'https://cdn.jsdelivr.net/npm/chart.js', array(), null, true);
@@ -160,5 +168,23 @@ function isd_create_tables_if_not_exists() {
 // Hook para verificar y crear tablas al cargar el plugin
 add_action('plugins_loaded', 'isd_create_tables_if_not_exists');
 
+
+
+function save_sync_settings() {
+    // Verifica los datos enviados
+    $enable_sync = isset($_POST['enable_sync']) ? filter_var($_POST['enable_sync'], FILTER_VALIDATE_BOOLEAN) : false;
+    $sync_interval = isset($_POST['sync_interval']) ? intval($_POST['sync_interval']) : 0;
+
+    // Guardar los valores en las opciones de WordPress
+    update_option('sync_enable', $enable_sync);
+    if ($enable_sync && $sync_interval > 0) {
+        update_option('sync_interval', $sync_interval);
+    }
+
+    // Respuesta de éxito
+    wp_send_json_success('Configuración guardada correctamente.');
+}
+
+add_action('wp_ajax_save_sync_settings', 'save_sync_settings');
 
 ?>
