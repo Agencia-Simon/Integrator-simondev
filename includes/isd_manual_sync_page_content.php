@@ -35,13 +35,13 @@ function isd_manual_sync_page_content()
         if ($status_code == 200) {
             $body = wp_remote_retrieve_body($response);
             $api_response = json_encode(json_decode($body), JSON_PRETTY_PRINT);
-            $product_register = isd_register_log($api_response, 'product');
+            $result = json_decode($body, true);
+            $product_register = isd_register_log($result, 'product');
             $log_id = $product_register['log_id'];
             // Si hay fallos, registrar los detalles de los fallos
-            if ($api_response['Fails_sync'] > 0) {
-                isd_register_fails($log_id, $api_response['Fails_data']);
+            if ($result['Fails_sync'] > 0) {
+                isd_register_fails($log_id, $result['Fails_data']);
             }
-            $result = json_decode($body, true);
         } else {
             $result = 'Error al sincronizar: ' . $status_code . ' ' . wp_remote_retrieve_response_message($response);
         }
