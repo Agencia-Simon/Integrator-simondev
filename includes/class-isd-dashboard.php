@@ -48,9 +48,10 @@ function isd_dashboard_page_content() {
     foreach ($tasks_by_day as $task) {
         $product_data['Tasks'][] = $task->total_tasks;
     }
-
+    $success_total_count = 0;
     foreach ($success_by_day as $success) {
         $product_data['Success'][] = $success->total_success;
+        $success_total_count += $success->total_success;
     }
 
     foreach ($fails_by_day as $fail) {
@@ -119,8 +120,8 @@ function isd_dashboard_page_content() {
                 <div class="col-md-4">
                     <div class="card mb-3">
                         <div class="card-body">
-                            <h3 class="badge badge-success">Tareas en Proceso</h3>
-                            <h2 class=""><?php echo "0"; ?></h2>
+                            <h3 class="badge badge-success">Sincronizaciones exitosas</h3>
+                            <h2 class=""><?php echo $success_total_count; ?></h2>
                         </div>
                     </div>
                 </div>
@@ -157,23 +158,41 @@ function isd_dashboard_page_content() {
                             <tbody>
                                 <!-- Aquí se llenarán los datos dinámicamente -->
                                 <?php
-                                // Ejemplo de datos de productos no sincronizados
-                                $productos_no_sincronizados = [
-                                    ['nombre' => 'Producto A', 'sku' => 'SKU123', 'error' => 'Error de conexión', 'fecha' => '2024-09-05'],
-                                    ['nombre' => 'Producto B', 'sku' => 'SKU124', 'error' => 'API no responde', 'fecha' => '2024-09-06'],
-                                    ['nombre' => 'Producto C', 'sku' => 'SKU125', 'error' => 'Formato incorrecto', 'fecha' => '2024-09-07'],
-                                    ['nombre' => 'Producto D', 'sku' => 'SKU126', 'error' => 'Formato incorrecto', 'fecha' => '2024-09-07'],
-                                    ['nombre' => 'Producto E', 'sku' => 'SKU127', 'error' => 'Formato incorrecto', 'fecha' => '2024-09-07'],
-                                    ['nombre' => 'Producto F', 'sku' => 'SKU128', 'error' => 'Formato incorrecto', 'fecha' => '2024-09-07'],
-                                    ['nombre' => 'Producto G', 'sku' => 'SKU129', 'error' => 'Formato incorrecto', 'fecha' => '2024-09-07'],
-                                    ['nombre' => 'Producto H', 'sku' => 'SKU130', 'error' => 'Formato incorrecto', 'fecha' => '2024-09-07'],
-                                    ['nombre' => 'Producto I', 'sku' => 'SKU131', 'error' => 'Formato incorrecto', 'fecha' => '2024-09-07'],
-                                    ['nombre' => 'Producto J', 'sku' => 'SKU132', 'error' => 'Formato incorrecto', 'fecha' => '2024-09-07'],
-                                    ['nombre' => 'Producto K', 'sku' => 'SKU133', 'error' => 'Formato incorrecto', 'fecha' => '2024-09-07'],
-                                    ['nombre' => 'Producto L', 'sku' => 'SKU134', 'error' => 'Formato incorrecto', 'fecha' => '2024-09-07'],
-                                    ['nombre' => 'Producto M', 'sku' => 'SKU135', 'error' => 'Formato incorrecto', 'fecha' => '2024-09-07'],
-                                    // Agregar más productos según sea necesario
-                                ];
+                                // datos de productos no sincronizados
+                                $table_name_fails = $wpdb->prefix . 'isd_fails';
+
+                                // Consulta para obtener los ids, skus y mensajes de la tabla fails
+                                $fails_data = $wpdb->get_results("
+                                    SELECT sku, message, datetime
+                                    FROM $table_name_fails
+                                ");
+
+                                // Cargar WooCommerce si no está disponible
+                                if (function_exists('wc_get_product')) {
+                                
+                                    $productos_no_sincronizados = [];
+
+                                    foreach ($fails_data as $fail) {
+                                        // Buscar el producto por SKU
+                                        $product = wc_get_product_id_by_sku($fail->sku);
+                                        
+                                        if ($product) {
+                                            $product_obj = wc_get_product($product);
+                                            $nombre_producto = $product_obj->get_name();
+                                        } else {
+                                            $nombre_producto = 'Producto no encontrado';
+                                        }
+
+                                        // Agregar los datos a la lista final
+                                        $productos_no_sincronizados[] = [
+                                            'id' => $fail->id,
+                                            'nombre' => $nombre_producto,
+                                            'sku' => $fail->sku,
+                                            'error' => $fail->message,
+                                            'fecha' => current_time('Y-m-d'), // Puedes cambiarlo si tienes una fecha específica
+                                        ];
+                                    }
+                                }
 
                                 foreach ($productos_no_sincronizados as $producto) {
                                     echo '<tr>';
