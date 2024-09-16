@@ -228,20 +228,20 @@ function isd_dashboard_page_content() {
                 labels: days,
                 datasets: [{
                     label: 'Tareas completadas',
-                    data: <?php echo json_encode($product_data['Tasks']); ?>,
+                    data: <?php echo json_encode(array_reverse($product_data['Tasks'])); ?>,
                     borderColor: 'rgba(153, 102, 255, 1)',
                     backgroundColor: 'rgba(153, 102, 255, 0.2)',
                     fill: false,
                 }, {
                     label: 'Creados / Actualizados',
-                    data: <?php echo json_encode($product_data['Success']); ?>,
+                    data: <?php echo json_encode(array_reverse($product_data['Success'])); ?>,
                     borderColor: 'rgba(75, 192, 192, 1)',
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     fill: false,
                 },
                 {
                     label: 'Elementos Fallidos',
-                    data: <?php echo json_encode($product_data['Fails']); ?>,
+                    data: <?php echo json_encode(array_reverse($product_data['Fails'])); ?>,
                     //orange
                     borderColor: 'rgba(233, 58, 6, 0.8)',
                     backgroundColor: 'rgba(233, 58, 6, 0.46)',
