@@ -51,12 +51,9 @@ function isd_manual_sync_page_content()
         <h1>Proceso de Sincronización Manual</h1>
         <div id="sync-container">
             <p>Sincronización completada.</p>
+            <!-- Productos -->
+            <h3 class="mt-3 mb-3">Productos</h3>
             <div class="row">
-
-                <!-- Productos -->
-                    <h3 class="mt-3 mb-3">Productos</h3>
-                    <!--info cards-->
-                    <div class="card-container">
                         <div class="card">
                             <div class="card-header">Mensaje</div>
                             <div class="card-body">
@@ -91,7 +88,6 @@ function isd_manual_sync_page_content()
                                 <strong><?php echo esc_html($result['Fails_sync']); ?></strong>
                             </div>
                         </div>
-                    </div>
 
             </div>
             <a href="<?php echo admin_url('admin.php?page=isd_dashboard'); ?>" class="btn btn-info mt-4">Regresar al
