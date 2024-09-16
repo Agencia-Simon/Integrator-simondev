@@ -64,7 +64,7 @@ function isd_manual_sync_page_content()
                     <div class="card-body">
                         <strong><?php echo esc_html($result['message']); ?></strong>
                         <br>
-                        <strong>Tiempo de ejecución:</strong><?php echo esc_html($result['execution_time']); ?>
+                        <strong>Tiempo de ejecución: </strong><?php echo esc_html($result['execution_time']); ?>
                     </div>
                 </div>
 
@@ -90,8 +90,7 @@ function isd_manual_sync_page_content()
                 </div>
 
             </div>
-            <a href="<?php echo admin_url('admin.php?page=isd_dashboard'); ?>" class="btn btn-info mt-4">Regresar al
-                Dashboard</a>
+            <a href="<?php echo admin_url('admin.php?page=isd_dashboard'); ?>" class="btn btn-info mt-4">Regresar al Dashboard</a>
             <?php
 }
 

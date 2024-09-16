@@ -110,39 +110,55 @@ function isd_manual_sync() {
 add_action('wp_ajax_isd_manual_sync', 'isd_manual_sync');
 
 // Crear tablas al activar el plugin
-function isd_create_tables() {
+// Crear tablas al cargar el plugin si no existen
+function isd_create_tables_if_not_exists() {
     global $wpdb;
     global $table_name_logs, $table_name_fails;
     
+    // Nombres de las tablas (especifica correctamente los prefijos si es necesario)
+    $table_name_logs = $wpdb->prefix . 'isd_logs';
+    $table_name_fails = $wpdb->prefix . 'isd_fails';
+
     $charset_collate = $wpdb->get_charset_collate();
-    
-    // SQL para crear la tabla de logs
-    $sql_logs = "CREATE TABLE $table_name_logs (
-        id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        type ENUM('product', 'client', 'invoice') NOT NULL,
-        error BOOLEAN NOT NULL,
-        message TEXT,
-        execution_time FLOAT NOT NULL,
-        created_count INT DEFAULT 0,
-        updated_count INT DEFAULT 0,
-        failed_count INT NOT NULL DEFAULT 0,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    ) $charset_collate;";
-    
-    // SQL para crear la tabla de fallos
-    $sql_fails = "CREATE TABLE $table_name_fails (
-        id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        log_id BIGINT(20) UNSIGNED NOT NULL,
-        sku VARCHAR(255) NOT NULL,
-        message TEXT,
-        datetime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (log_id) REFERENCES $table_name_logs(id) ON DELETE CASCADE
-    ) $charset_collate;";
-    
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql_logs);
-    dbDelta($sql_fails);
+
+    // Verificar si la tabla de logs ya existe
+    if ($wpdb->get_var("SHOW TABLES LIKE '{$table_name_logs}'") != $table_name_logs) {
+        // SQL para crear la tabla de logs
+        $sql_logs = "CREATE TABLE $table_name_logs (
+            id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            type ENUM('product', 'client', 'invoice') NOT NULL,
+            error BOOLEAN NOT NULL,
+            message TEXT,
+            execution_time FLOAT NOT NULL,
+            created_count INT DEFAULT 0,
+            updated_count INT DEFAULT 0,
+            failed_count INT NOT NULL DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql_logs);
+    }
+
+    // Verificar si la tabla de fallos ya existe
+    if ($wpdb->get_var("SHOW TABLES LIKE '{$table_name_fails}'") != $table_name_fails) {
+        // SQL para crear la tabla de fallos
+        $sql_fails = "CREATE TABLE $table_name_fails (
+            id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            log_id BIGINT(20) UNSIGNED NOT NULL,
+            sku VARCHAR(255) NOT NULL,
+            message TEXT,
+            datetime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (log_id) REFERENCES $table_name_logs(id) ON DELETE CASCADE
+        ) $charset_collate;";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql_fails);
+    }
 }
 
-register_activation_hook(__FILE__, 'isd_create_tables');
+// Hook para verificar y crear tablas al cargar el plugin
+add_action('plugins_loaded', 'isd_create_tables_if_not_exists');
+
+
 ?>
