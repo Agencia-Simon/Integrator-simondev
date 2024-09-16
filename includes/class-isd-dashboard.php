@@ -2,16 +2,64 @@
 global $wpdb;
 
 function isd_dashboard_page_content() {
+
     // Datos de ejemplo para el gráfico
     $product_data = [
-        'created' => [10, 20, 15, 25, 30],
-        'updated' => [5, 15, 20, 10, 25],
+        'Tasks' => [10, 20, 15, 25, 30],
+        'Fails' => [5, 15, 20, 10, 25],
     ];
 
     global $wpdb;
 
     // Nombre de las tablas
     $table_logs = $wpdb->prefix . 'isd_logs';
+
+    // Consultar cantidad total de tareas (logs) por día
+    $tasks_by_day = $wpdb->get_results("
+        SELECT DATE(created_at) as date, COUNT(*) as total_tasks
+        FROM $table_logs
+        GROUP BY DATE(created_at)
+        ORDER BY DATE(created_at) DESC
+        LIMIT 5
+    ");
+
+    // Consultar suma de created_count + updated_count por día
+    $success_by_day = $wpdb->get_results("
+        SELECT DATE(created_at) as date, SUM(created_count + updated_count) as total_success
+        FROM $table_logs
+        GROUP BY DATE(created_at)
+        ORDER BY DATE(created_at) DESC
+        LIMIT 5
+    ");
+
+    // Consultar suma de failed_count por día
+    $fails_by_day = $wpdb->get_results("
+        SELECT DATE(created_at) as date, SUM(failed_count) as total_fails
+        FROM $table_logs
+        GROUP BY DATE(created_at)
+        ORDER BY DATE(created_at) DESC
+        LIMIT 5
+    ");
+
+    // Armar las listas finales
+    $product_data = [
+        'Tasks' => [],
+        'Success' => [],
+        'Fails' => [],
+    ];
+
+    // Formatear las consultas en las listas
+    foreach ($tasks_by_day as $task) {
+        $product_data['Tasks'][] = $task->total_tasks;
+    }
+
+    foreach ($success_by_day as $success) {
+        $product_data['Success'][] = $success->total_success;
+    }
+
+    foreach ($fails_by_day as $fail) {
+        $product_data['Fails'][] = $fail->total_fails;
+    }
 
     // Consultar el total de logs registrados
     $total_logs = $wpdb->get_var( "SELECT COUNT(*) FROM $table_logs" );
@@ -169,23 +217,41 @@ function isd_dashboard_page_content() {
     </script>
     <script>
         var ctx = document.getElementById('productChart').getContext('2d');
+        const days = [];
+        const months = ["Jan.", "Feb.", "Mar.", "Apr.", "May.", "Jun.", "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."];
+
+        for (let i = 0; i < 5; i++) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            const formattedDate = `${months[date.getMonth()]} ${date.getDate()}`;
+            days.unshift(formattedDate); // Agregar al principio para tener el orden correcto
+        }
         var productChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
+                labels: days,
                 datasets: [{
-                    label: 'Productos Creados',
-                    data: <?php echo json_encode($product_data['created']); ?>,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    fill: false,
-                }, {
-                    label: 'Productos Actualizados',
-                    data: <?php echo json_encode($product_data['updated']); ?>,
+                    label: 'Tareas completadas',
+                    data: <?php echo json_encode($product_data['Tasks']); ?>,
                     borderColor: 'rgba(153, 102, 255, 1)',
                     backgroundColor: 'rgba(153, 102, 255, 0.2)',
                     fill: false,
-                }]
+                }, {
+                    label: 'Tareas Exitosas',
+                    data: <?php echo json_encode($product_data['Success']); ?>,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: false,
+                },
+                {
+                    label: 'Tareas Fallidas',
+                    data: <?php echo json_encode($product_data['Fails']); ?>,
+                    //orange
+                    borderColor: 'rgba(233, 58, 6, 0.8)',
+                    backgroundColor: 'rgba(233, 58, 6, 0.46)',
+                    fill: false,
+                }
+            ]
             },
             options: {
                 responsive: true,
