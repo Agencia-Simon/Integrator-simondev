@@ -1,4 +1,5 @@
 <?php
+global $wpdb;
 
 function isd_dashboard_page_content() {
     // Datos de ejemplo para el gráfico
@@ -6,6 +7,22 @@ function isd_dashboard_page_content() {
         'created' => [10, 20, 15, 25, 30],
         'updated' => [5, 15, 20, 10, 25],
     ];
+
+    global $wpdb;
+
+    // Nombre de las tablas
+    $table_logs = $wpdb->prefix . 'simondev_integratorlogs';
+
+    // Consultar el total de logs registrados
+    $total_logs = $wpdb->get_var( "SELECT COUNT(*) FROM $table_logs" );
+
+    // Consultar el promedio de execution_time para los logs con error = false
+    // Suponiendo que execution_time está en un formato adecuado para convertir a DECIMAL
+    $avg_execution_time = $wpdb->get_var( "
+        SELECT AVG(CAST(SUBSTRING_INDEX(execution_time, ' ', 1) AS DECIMAL(10,2))) 
+        FROM $table_logs 
+        WHERE error = false
+    " );
 
     ?>
     <style>
@@ -50,7 +67,7 @@ function isd_dashboard_page_content() {
                     <div class="card mb-3">
                         <div class="card-body">
                             <h3 class="badge badge-primary">Tareas Ejecutadas</h3>
-                            <h2 class="">123</h2>
+                            <h2 class=""><?php echo $total_logs; ?></h2>
                         </div>
                     </div>
                 </div>
@@ -58,7 +75,7 @@ function isd_dashboard_page_content() {
                     <div class="card mb-3">
                         <div class="card-body">
                             <h3 class="badge badge-success">Tareas en Proceso</h3>
-                            <h2 class="">45</h2>
+                            <h2 class=""><?php echo "0"; ?></h2>
                         </div>
                     </div>
                 </div>
@@ -66,7 +83,7 @@ function isd_dashboard_page_content() {
                     <div class="card mb-3">
                         <div class="card-body">
                             <h3 class="badge badge-warning">Promedio de Velocidad</h3>
-                            <h2 class="">12.5/s</h2>
+                            <h2 class=""><?php echo $avg_execution_time; ?></h2>
                         </div>
                     </div>
                 </div>

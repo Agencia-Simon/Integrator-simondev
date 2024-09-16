@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Integrator Simon.dev
  * Description: Un plugin integrador de Simon.dev
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: Agencia Simon.dev
  * License: GPL2
  */
@@ -11,6 +11,10 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
+
+global $wpdb;
+$table_name_logs = $wpdb->prefix . 'simondev_integratorlogs';
+$table_name_fails = $wpdb->prefix . 'simondev_integratorfails';
 
 // Crear un menú en el panel de administración
 function isd_add_menu() {
@@ -105,10 +109,40 @@ function isd_manual_sync() {
 }
 add_action('wp_ajax_isd_manual_sync', 'isd_manual_sync');
 
-
-function custom_cors_headers() {
-    header('Access-Control-Allow-Origin: http://localhost:8002'); // Cambia al origen que necesites
-    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type, Authorization');
+// Crear tablas al activar el plugin
+function isd_create_tables() {
+    global $wpdb;
+    global $table_name_logs, $table_name_fails;
+    
+    $charset_collate = $wpdb->get_charset_collate();
+    
+    // SQL para crear la tabla de logs
+    $sql_logs = "CREATE TABLE $table_name_logs (
+        id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        type ENUM('product', 'client', 'invoice') NOT NULL,
+        error BOOLEAN NOT NULL,
+        message TEXT,
+        execution_time FLOAT NOT NULL,
+        created_count INT DEFAULT 0,
+        updated_count INT DEFAULT 0,
+        failed_count INT NOT NULL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) $charset_collate;";
+    
+    // SQL para crear la tabla de fallos
+    $sql_fails = "CREATE TABLE $table_name_fails (
+        id BIGINT(20) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        log_id BIGINT(20) UNSIGNED NOT NULL,
+        sku VARCHAR(255) NOT NULL,
+        message TEXT,
+        datetime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (log_id) REFERENCES $table_name_logs(id) ON DELETE CASCADE
+    ) $charset_collate;";
+    
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql_logs);
+    dbDelta($sql_fails);
 }
-add_action('init', 'custom_cors_headers');
+
+register_activation_hook(__FILE__, 'isd_create_tables');
+?>
