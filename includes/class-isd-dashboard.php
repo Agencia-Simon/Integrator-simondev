@@ -11,7 +11,7 @@ function isd_dashboard_page_content() {
     global $wpdb;
 
     // Nombre de las tablas
-    $table_logs = $wpdb->prefix . 'simondev_integratorlogs';
+    $table_logs = $wpdb->prefix . 'isd_logs';
 
     // Consultar el total de logs registrados
     $total_logs = $wpdb->get_var( "SELECT COUNT(*) FROM $table_logs" );
