@@ -23,6 +23,7 @@ function isd_dashboard_page_content() {
         FROM $table_logs 
         WHERE error = false
     " );
+    $avg_execution_time = round($avg_execution_time, 2);
 
     ?>
     <style>
@@ -83,7 +84,7 @@ function isd_dashboard_page_content() {
                     <div class="card mb-3">
                         <div class="card-body">
                             <h3 class="badge badge-warning">Promedio de Velocidad</h3>
-                            <h2 class=""><?php echo $avg_execution_time; ?></h2>
+                            <h2 class=""><?php echo $avg_execution_time; ?> Segundos</h2>
                         </div>
                     </div>
                 </div>
