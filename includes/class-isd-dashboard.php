@@ -237,6 +237,7 @@ function isd_dashboard_page_content() {
         </div>
     </div>
 
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.getElementById('enable-sync').addEventListener('change', function () {
