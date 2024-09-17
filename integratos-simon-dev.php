@@ -160,23 +160,16 @@ function isd_create_tables_if_not_exists() {
 // Hook para verificar y crear tablas al cargar el plugin
 add_action('plugins_loaded', 'isd_create_tables_if_not_exists');
 
-
-
 function save_sync_settings() {
-    // Verifica los datos enviados
-    $enable_sync = isset($_POST['enable_sync']) ? filter_var($_POST['enable_sync'], FILTER_VALIDATE_BOOLEAN) : false;
+    // Obtener los datos enviados por AJAX
+    $enable_sync = isset($_POST['enable_sync']) ? intval($_POST['enable_sync']) : 0;
     $sync_interval = isset($_POST['sync_interval']) ? intval($_POST['sync_interval']) : 0;
 
-    // Guardar los valores en las opciones de WordPress
+    // Guardar los valores como opciones en la base de datos de WordPress
     update_option('sync_enable', $enable_sync);
-    if ($enable_sync && $sync_interval > 0) {
-        update_option('sync_interval', $sync_interval);
-    }
+    update_option('sync_interval', $sync_interval);
 
-    // Respuesta de éxito
-    wp_send_json_success('Configuración guardada correctamente.');
+    // Respuesta para la llamada AJAX
+    wp_send_json_success('Configuración guardada correctamente');
 }
-
 add_action('wp_ajax_save_sync_settings', 'save_sync_settings');
-
-?>

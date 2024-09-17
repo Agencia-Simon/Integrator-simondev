@@ -222,7 +222,7 @@ function isd_dashboard_page_content() {
                 <div class="modal-body">
                     <form id="sync-settings-form">
                         <div class="form-group">
-                            <label for="enable-sync">Activar? </label>
+                            <label for="enable-sync">Activar?</label>
                             <input type="checkbox" id="enable-sync" name="enable_sync" class="form-check-input mt-1">
                         </div>
                         <div class="form-group" id="interval-group" style="display:none;">
@@ -236,58 +236,99 @@ function isd_dashboard_page_content() {
         </div>
     </div>
 
+    <style>
+    /* Estilos para oscurecer el fondo */
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semitransparente */
+        z-index: 1040;
+    }
+
+    /* Ajustar margen superior del modal */
+    .modal {
+        z-index: 1050;
+    }
+</style>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Obtener los elementos del DOM
-            var modal = document.getElementById('syncModal');
-            var openButton = document.getElementById('schedule-button');
-            var closeButton = document.getElementById('close-modal');
+    document.addEventListener('DOMContentLoaded', function () {
+        var modal = document.getElementById('syncModal');
+        var openButton = document.getElementById('schedule-button');
+        var closeButton = document.getElementById('close-modal');
+        var backdrop = null; // Para el fondo oscuro
 
-            // Abrir el modal al hacer clic en el botón
-            openButton.addEventListener('click', function() {
-                modal.style.display = 'block';
-            });
+        // Abrir el modal y mostrar fondo oscuro
+        openButton.addEventListener('click', function () {
+            modal.style.display = 'block';
 
-            // Cerrar el modal al hacer clic en el botón de cierre
-            closeButton.addEventListener('click', function() {
+            // Crear fondo oscuro
+            backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop';
+            document.body.appendChild(backdrop);
+        });
+
+        // Cerrar el modal y remover fondo oscuro
+        closeButton.addEventListener('click', function () {
+            modal.style.display = 'none';
+
+            if (backdrop) {
+                document.body.removeChild(backdrop);
+            }
+        });
+
+        // Cerrar modal si se hace clic fuera de él
+        window.addEventListener('click', function (event) {
+            if (event.target == modal) {
                 modal.style.display = 'none';
-            });
 
-            // Cerrar el modal al hacer clic fuera del modal
-            window.addEventListener('click', function(event) {
-                if (event.target == modal) {
-                    modal.style.display = 'none';
+                if (backdrop) {
+                    document.body.removeChild(backdrop);
                 }
-            });
+            }
+        });
 
-            // Mostrar el campo de intervalo de tiempo si está marcada la sincronización automática
-            document.getElementById('enable-sync').addEventListener('change', function() {
-                var intervalGroup = document.getElementById('interval-group');
-                if (this.checked) {
-                    intervalGroup.style.display = 'block';
-                } else {
-                    intervalGroup.style.display = 'none';
-                }
-            });
+        // Mostrar el campo de intervalo de tiempo si el checkbox está activado
+        document.getElementById('enable-sync').addEventListener('change', function () {
+            var intervalGroup = document.getElementById('interval-group');
+            if (this.checked) {
+                intervalGroup.style.display = 'block';
+            } else {
+                intervalGroup.style.display = 'none';
+            }
+        });
 
-            // Manejar el envío del formulario con AJAX (opcional)
-            document.getElementById('sync-settings-form').addEventListener('submit', function(e) {
-                e.preventDefault();
+        // Enviar formulario para guardar configuraciones
+        document.getElementById('sync-settings-form').addEventListener('submit', function (e) {
+            e.preventDefault();
 
-                // Aquí puedes manejar la lógica de guardar la configuración mediante AJAX
-                var enableSync = document.getElementById('enable-sync').checked;
-                var syncInterval = document.getElementById('sync-interval').value;
+            var enableSync = document.getElementById('enable-sync').checked ? 1 : 0;
+            var syncInterval = document.getElementById('sync-interval').value || 0;
 
-                // Lógica para manejar la solicitud AJAX si es necesario...
+            // Hacer petición AJAX para guardar la configuración en las options de WordPress
+            var data = {
+                action: 'save_sync_settings', // Acción de WordPress
+                enable_sync: enableSync,
+                sync_interval: syncInterval,
+            };
+
+            jQuery.post(ajaxurl, data, function (response) {
                 alert('Configuración guardada correctamente');
-
-                // Cerrar el modal después de guardar
                 modal.style.display = 'none';
+
+                if (backdrop) {
+                    document.body.removeChild(backdrop);
+                }
             });
         });
-    </script>
+    });
+</script>
+
 
 
     <script>
