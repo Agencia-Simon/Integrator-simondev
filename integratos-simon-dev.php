@@ -90,7 +90,7 @@ add_action('admin_enqueue_scripts', 'isd_enqueue_scripts');
 function isd_manual_sync() {
     $api_url = get_option('isd_api_url'); // Obtener la URL del API desde settings
     $api_token = get_option('isd_api_token'); // Obtener el token desde settings
-
+    
     $response = wp_remote_get(
         $api_url . '/api/custom-window',
         array(
@@ -160,16 +160,3 @@ function isd_create_tables_if_not_exists() {
 // Hook para verificar y crear tablas al cargar el plugin
 add_action('plugins_loaded', 'isd_create_tables_if_not_exists');
 
-function save_sync_settings() {
-    // Obtener los datos enviados por AJAX
-    $enable_sync = isset($_POST['enable_sync']) ? intval($_POST['enable_sync']) : 0;
-    $sync_interval = isset($_POST['sync_interval']) ? intval($_POST['sync_interval']) : 0;
-
-    // Guardar los valores como opciones en la base de datos de WordPress
-    update_option('sync_enable', $enable_sync);
-    update_option('sync_interval', $sync_interval);
-
-    // Respuesta para la llamada AJAX
-    wp_send_json_success('Configuración guardada correctamente');
-}
-add_action('wp_ajax_save_sync_settings', 'save_sync_settings');
