@@ -212,7 +212,7 @@ function isd_dashboard_page_content() {
     </div>
 
     <!-- Modal -->
-    <div class="modal" id="syncModal" tabindex="-1" role="dialog">
+    <div class="modal mt-5" id="syncModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -222,8 +222,8 @@ function isd_dashboard_page_content() {
                 <div class="modal-body">
                     <form id="sync-settings-form">
                         <div class="form-group">
-                            <label for="enable-sync">Programar sincronización automática</label>
-                            <input type="checkbox" id="enable-sync" name="enable_sync" class="form-check-input">
+                            <label for="enable-sync">Activar? </label>
+                            <input type="checkbox" id="enable-sync" name="enable_sync" class="form-check-input mt-1">
                         </div>
                         <div class="form-group" id="interval-group" style="display:none;">
                             <label for="sync-interval">Intervalo de tiempo (en minutos)</label>
