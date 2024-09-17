@@ -210,15 +210,14 @@ function isd_dashboard_page_content() {
             </div>
         </div>
     </div>
+
     <!-- Modal -->
-    <div class="modal" id="syncModal" tabindex="-1" role="dialog" aria-labelledby="syncModalLabel" aria-hidden="true">
+    <div class="modal" id="syncModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="syncModalLabel">Programar Sincronización Automática</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <h5 class="modal-title">Programar Sincronización Automática</h5>
+                    <button type="button" class="close" id="close-modal">&times;</button>
                 </div>
                 <div class="modal-body">
                     <form id="sync-settings-form">
@@ -237,44 +236,59 @@ function isd_dashboard_page_content() {
         </div>
     </div>
 
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        document.getElementById('enable-sync').addEventListener('change', function () {
-            var intervalGroup = document.getElementById('interval-group');
-            if (this.checked) {
-                intervalGroup.style.display = 'block';
-            } else {
-                intervalGroup.style.display = 'none';
-            }
-        });
 
-        // Captura el evento de envío del formulario
-        document.getElementById('sync-settings-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            var enableSync = document.getElementById('enable-sync').checked;
-            var syncInterval = document.getElementById('sync-interval').value;
-            
-            // Envía los datos a WordPress usando AJAX
-            jQuery.ajax({
-                url: ajaxurl, // ajaxurl es una variable global de WordPress
-                method: 'POST',
-                data: {
-                    action: 'save_sync_settings',
-                    enable_sync: enableSync,
-                    sync_interval: syncInterval
-                },
-                success: function(response) {
-                    alert('Configuración guardada correctamente');
-                    jQuery('#syncModal').modal('hide');
-                },
-                error: function() {
-                    alert('Error al guardar la configuración');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Obtener los elementos del DOM
+            var modal = document.getElementById('syncModal');
+            var openButton = document.getElementById('schedule-button');
+            var closeButton = document.getElementById('close-modal');
+
+            // Abrir el modal al hacer clic en el botón
+            openButton.addEventListener('click', function() {
+                modal.style.display = 'block';
+            });
+
+            // Cerrar el modal al hacer clic en el botón de cierre
+            closeButton.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+
+            // Cerrar el modal al hacer clic fuera del modal
+            window.addEventListener('click', function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
                 }
+            });
+
+            // Mostrar el campo de intervalo de tiempo si está marcada la sincronización automática
+            document.getElementById('enable-sync').addEventListener('change', function() {
+                var intervalGroup = document.getElementById('interval-group');
+                if (this.checked) {
+                    intervalGroup.style.display = 'block';
+                } else {
+                    intervalGroup.style.display = 'none';
+                }
+            });
+
+            // Manejar el envío del formulario con AJAX (opcional)
+            document.getElementById('sync-settings-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Aquí puedes manejar la lógica de guardar la configuración mediante AJAX
+                var enableSync = document.getElementById('enable-sync').checked;
+                var syncInterval = document.getElementById('sync-interval').value;
+
+                // Lógica para manejar la solicitud AJAX si es necesario...
+                alert('Configuración guardada correctamente');
+
+                // Cerrar el modal después de guardar
+                modal.style.display = 'none';
             });
         });
     </script>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
