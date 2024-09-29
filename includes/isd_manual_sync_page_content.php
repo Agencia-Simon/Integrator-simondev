@@ -1,7 +1,6 @@
 <?php
 
-function isd_manual_sync_page_content()
-{
+function SyncProducts(){
     // Obtener la URL y el token de la API desde las opciones
     $apiUrl = esc_url(get_option('isd_api_url'));
     $apiToken = esc_attr(get_option('isd_api_token'));
@@ -26,10 +25,10 @@ function isd_manual_sync_page_content()
 
     // Realizar la solicitud a la API
     $response = wp_remote_get($apiUrl, $args);
-
+    $status_code = 0;
     // Procesar la respuesta
     if (is_wp_error($response)) {
-        $result = 'Error al realizar la solicitud: ' . $response->get_error_message();
+        $result = 'Error al realizar la solicitud: Servicio temporalmente fuera de servicio.<br><a href="mailto:dev@agenciasimon.com">Contactar soporte</a>';
     } else {
         $status_code = wp_remote_retrieve_response_code($response);
         if ($status_code == 200) {
@@ -43,9 +42,17 @@ function isd_manual_sync_page_content()
                 isd_register_fails($log_id, $result['Fails_data']);
             }
         } else {
-            $result = 'Error al sincronizar: ' . $status_code . ' ' . wp_remote_retrieve_response_message($response);
+            $result = 'Error de sincronización: Puede reintentar la tarea.<br><a href="mailto:dev@agenciasimon.com">Contactar soporte</a>';
         }
     }
+    return [$result, $status_code];
+}
+
+function isd_manual_sync_page_content()
+{
+    $response = SyncProducts();
+    $result = $response[0];
+    $status_code = $response[1];
     ?>
     <style>
     .card-container .card {
@@ -62,30 +69,30 @@ function isd_manual_sync_page_content()
                 <div class="card">
                     <div class="card-header">Resultados</div>
                     <div class="card-body">
-                        <strong><?php echo esc_html($result['message']); ?></strong>
+                        <strong><?php echo strval($status_code == 200? $result['message']: $result); ?></strong>
                         <br>
-                        <strong>Tiempo de ejecución: </strong><?php echo esc_html($result['execution_time']); ?>
+                        <strong>Tiempo de ejecución: </strong><?php echo esc_html($status_code == 200? $result['execution_time']: 0); ?>
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-header">Productos Sincronizados</div>
                     <div class="card-body">
-                        <strong><?php echo esc_html($result['created_products']); ?></strong>
+                        <strong><?php echo esc_html($status_code == 200? $result['created_products'] : 0); ?></strong>
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-header">Productos Actualizados</div>
                     <div class="card-body">
-                        <strong><?php echo esc_html($result['updated_Count']); ?></strong>
+                        <strong><?php echo esc_html($status_code == 200? $result['updated_Count'] : 0); ?></strong>
                     </div>
                 </div>
 
                 <div class="card">
                     <div class="card-header">Fallos de Sincronización</div>
                     <div class="card-body">
-                        <strong><?php echo esc_html($result['Fails_sync']); ?></strong>
+                        <strong><?php echo esc_html($status_code == 200? $result['Fails_sync'] : 0); ?></strong>
                     </div>
                 </div>
 
