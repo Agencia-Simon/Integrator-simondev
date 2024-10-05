@@ -153,54 +153,7 @@ function isd_unschedule_cron() {
 }
 register_deactivation_hook(__FILE__, 'isd_unschedule_cron');
 
-// Función de la tarea cron
-function SyncProducts(){
-    // Obtener la URL y el token de la API desde las opciones
-    $apiUrl = esc_url(get_option('isd_api_url'));
-    $apiToken = esc_attr(get_option('isd_api_token'));
 
-    // Asegurar que el endpoint esté correctamente formateado
-    $postUrl = 'api/custom-window';
-    if (substr($apiUrl, -1) === '/') {
-        $apiUrl .= $postUrl;
-    } else {
-        $apiUrl .= '/' . $postUrl;
-    }
-
-    // Configurar la solicitud HTTP
-    $args = array(
-        'method' => 'GET',
-        'timeout' => 60,
-        'headers' => array(
-            'Content-Type' => 'application/json',
-            'Authorization' => 'Bearer ' . $apiToken,
-        ),
-    );
-
-    // Realizar la solicitud a la API
-    $response = wp_remote_get($apiUrl, $args);
-    $status_code = 0;
-    // Procesar la respuesta
-    if (is_wp_error($response)) {
-        $result = 'Error al realizar la solicitud: Servicio temporalmente fuera de servicio.<br><a href="mailto:dev@agenciasimon.com">Contactar soporte</a>';
-    } else {
-        $status_code = wp_remote_retrieve_response_code($response);
-        if ($status_code == 200) {
-            $body = wp_remote_retrieve_body($response);
-            $api_response = json_encode(json_decode($body), JSON_PRETTY_PRINT);
-            $result = json_decode($body, true);
-            $product_register = isd_register_log($result, 'product');
-            $log_id = $product_register['log_id'];
-            // Si hay fallos, registrar los detalles de los fallos
-            if ($result['Fails_sync'] > 0) {
-                isd_register_fails($log_id, $result['Fails_data']);
-            }
-        } else {
-            $result = 'Error de sincronización: Puede reintentar la tarea.<br><a href="mailto:dev@agenciasimon.com">Contactar soporte</a>';
-        }
-    }
-    return [$result, $status_code];
-}
 
 function isd_cron_task_callback() {
     isd_write_log('Cron iniciado');
