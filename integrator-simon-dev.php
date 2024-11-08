@@ -104,6 +104,95 @@ function isd_enqueue_scripts($hook) {
 }
 add_action('admin_enqueue_scripts', 'isd_enqueue_scripts');
 
+add_action('woocommerce_order_status_completed', 'actualizar_stock_por_bodegas', 10, 1);
+
+function actualizar_stock_por_bodegas($order_id) {
+    $order = wc_get_order($order_id);
+
+    // Iterar sobre cada artículo en el pedido
+    foreach ($order->get_items() as $item) {
+        $product_id = $item->get_product_id();
+        $quantity_requested = $item->get_quantity();
+
+        // Obtener el valor actual de stock por bodegas
+        $stock_por_sucursales = get_post_meta($product_id, 'stock_por_sucursales', true);
+
+        // Convertir el stock a un array asociativo
+        $bodegas = parsear_stock_por_sucursales($stock_por_sucursales);
+
+        // Actualizar el stock de bodegas según la cantidad solicitada
+        list($bodegas_actualizadas, $bodegas_usadas) = actualizar_inventario_bodegas($bodegas, $quantity_requested);
+
+        // Convertir el array a formato de texto para guardar en metadata
+        $nuevo_stock_por_sucursales = formatear_stock_por_sucursales($bodegas_actualizadas);
+
+        // Guardar el nuevo valor en metadata
+        update_post_meta($product_id, 'stock_por_sucursales', $nuevo_stock_por_sucursales);
+
+        // Crear el mensaje para la nota del pedido con las bodegas usadas
+        $nota_bodegas = "Producto: " . $item->get_name() . "\n";
+        foreach ($bodegas_usadas as $bodega => $cantidad_usada) {
+            $nota_bodegas .= "Bodega: $bodega - Cantidad descontada: $cantidad_usada\n";
+        }
+
+        // Agregar la nota al pedido
+        $order->add_order_note($nota_bodegas);
+    }
+}
+
+// Modificar actualizar_inventario_bodegas para registrar las bodegas usadas
+function actualizar_inventario_bodegas($bodegas, $quantity_requested) {
+    arsort($bodegas); // Ordena de mayor a menor
+    $bodegas_usadas = []; // Almacena las bodegas de las que se descontará el stock
+
+    foreach ($bodegas as $bodega => $stock) {
+        if ($quantity_requested <= 0) {
+            break;
+        }
+
+        if ($stock >= $quantity_requested) {
+            // Si la bodega tiene suficiente stock
+            $bodegas[$bodega] -= $quantity_requested;
+            $bodegas_usadas[$bodega] = $quantity_requested;
+            $quantity_requested = 0;
+        } else {
+            // Si la bodega no tiene suficiente, agotar lo que tenga y restar del pedido
+            $bodegas_usadas[$bodega] = $stock;
+            $quantity_requested -= $stock;
+            $bodegas[$bodega] = 0;
+        }
+    }
+
+    return [$bodegas, $bodegas_usadas];
+}
+
+// Función para convertir el stock por bodegas a un array asociativo
+function parsear_stock_por_sucursales($stock_str) {
+    $bodegas = [];
+    $partes = explode(' | ', $stock_str);
+
+    foreach ($partes as $parte) {
+        if (preg_match('/(.*?): (\d+\.\d+)/', $parte, $matches)) {
+            $bodega = $matches[1];
+            $cantidad = (float) $matches[2];
+            $bodegas[$bodega] = $cantidad;
+        }
+    }
+
+    return $bodegas;
+}
+
+// Función para formatear el array de bodegas a texto para guardar en metadata
+function formatear_stock_por_sucursales($bodegas) {
+    $partes = [];
+
+    foreach ($bodegas as $bodega => $cantidad) {
+        $partes[] = "{$bodega}: " . number_format($cantidad, 2);
+    }
+
+    return implode(' | ', $partes);
+}
+
 function isd_manual_sync() {
     $api_url = get_option('isd_api_url'); // Obtener la URL del API desde settings
     $api_token = get_option('isd_api_token'); // Obtener el token desde settings
