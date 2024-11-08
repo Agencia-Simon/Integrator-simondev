@@ -3,7 +3,9 @@
  * Plugin Name: Integrator Simon.dev
  * Description: Un plugin integrador de Simon.dev
  * Version: 1.0.4
- * Author: Agencia Simon.dev
+ * Author: Agencia Simon
+ * developer: Tomas Vargas
+ * Contact: dev@agenciasimon.com
  * License: GPL2
  */
 
@@ -44,6 +46,15 @@ function isd_add_menu() {
         'isd_settings',
         'isd_settings_page'
     );
+
+    add_submenu_page(
+        'isd_dashboard',
+        'Logs',
+        'Logs',
+        'manage_options',
+        'isd_logs',
+        'isd_logs_page'
+    );
 }
 add_action( 'admin_menu', 'isd_add_menu' );
 
@@ -57,6 +68,12 @@ function isd_dashboard_page() {
 function isd_settings_page() {
     include plugin_dir_path( __FILE__ ) . 'includes/class-isd-settings.php';
     isd_settings_page_content();
+}
+
+// Función para mostrar la página de configuración
+function isd_logs_page() {
+    include plugin_dir_path( __FILE__ ) . 'includes/class-isd-logs.php';
+    isd_logs_page_content();
 }
 
 function isd_register_sync_page() {
