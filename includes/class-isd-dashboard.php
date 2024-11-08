@@ -40,6 +40,7 @@ function isd_dashboard_page_content() {
     // Armar las listas finales
     $product_data = [
         'Tasks' => [],
+        'Dates' => [],
         'Success' => [],
         'Fails' => [],
     ];
@@ -48,6 +49,12 @@ function isd_dashboard_page_content() {
     foreach ($tasks_by_day as $task) {
         $product_data['Tasks'][] = $task->total_tasks;
     }
+
+    // Formatear las consultas en las listas
+    foreach ($tasks_by_day as $task) {
+        $product_data['Dates'][] = $task->date;
+    }
+
     $success_total_count = 0;
     foreach ($success_by_day as $success) {
         $product_data['Success'][] = $success->total_success;
@@ -142,7 +149,7 @@ function isd_dashboard_page_content() {
                     <button class="btn btn-primary">Reintentar Sincronizaciones</button>
                 </div-->
                 <hr>
-                <div class="col-md-12 mb-3">
+                <div class="col-md-12 mt-5 mb-3">
                     <h5 class="card-title">Productos No Sincronizados</h5>
                     <div class="table-responsive" style="max-height: 900px;">
                         <table class="table table-striped">
@@ -201,6 +208,11 @@ function isd_dashboard_page_content() {
                                     echo '<td>' . esc_html($producto['fecha']) . '</td>';
                                     echo '</tr>';
                                 }
+                                if (count($productos_no_sincronizados) == 0) {
+                                    echo '<tr>';
+                                    echo '<td colspan="4" class="text-center">No hay productos sin sincronizar</td>';
+                                    echo '</tr>';
+                                }
                                 ?>
                             </tbody>
                         </table>
@@ -232,15 +244,15 @@ function isd_dashboard_page_content() {
     </script>
     <script>
         var ctx = document.getElementById('productChart').getContext('2d');
-        const days = [];
-        const months = ["Jan.", "Feb.", "Mar.", "Apr.", "May.", "Jun.", "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."];
-
-        for (let i = 0; i < 5; i++) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            const formattedDate = `${months[date.getMonth()]} ${date.getDate()}`;
-            days.unshift(formattedDate); // Agregar al principio para tener el orden correcto
+        var ndays = <?php echo json_encode(array_reverse($product_data['Dates'])); ?>;
+        var days = [];
+        const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+        //transform '2024-09-27' formar to Enero 1 from list
+        for (var i = 0; i < ndays.length; i++) {
+            var date = new Date(ndays[i]);
+            days[i] = `${date.getDate()} ${months[date.getMonth()]}`;
         }
+        
         var productChart = new Chart(ctx, {
             type: 'line',
             data: {

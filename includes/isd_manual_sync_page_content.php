@@ -1,6 +1,7 @@
 <?php
 
 function SyncProducts(){
+    isd_write_log('Manual Sync: started');
     // Obtener la URL y el token de la API desde las opciones
     $apiUrl = esc_url(get_option('isd_api_url'));
     $apiToken = esc_attr(get_option('isd_api_token'));
@@ -28,10 +29,12 @@ function SyncProducts(){
     $status_code = 0;
     // Procesar la respuesta
     if (is_wp_error($response)) {
+        isd_write_log('Manual Sync: '.$response->get_error_message());
         $result = 'Error al realizar la solicitud: Servicio temporalmente fuera de servicio.<br><a href="mailto:dev@agenciasimon.com">Contactar soporte</a>';
     } else {
         $status_code = wp_remote_retrieve_response_code($response);
         if ($status_code == 200) {
+            isd_write_log('Manual Sync: success');
             $body = wp_remote_retrieve_body($response);
             $api_response = json_encode(json_decode($body), JSON_PRETTY_PRINT);
             $result = json_decode($body, true);
@@ -40,8 +43,10 @@ function SyncProducts(){
             // Si hay fallos, registrar los detalles de los fallos
             if ($result['Fails_sync'] > 0) {
                 isd_register_fails($log_id, $result['Fails_data']);
+                isd_write_log('Manual Sync: data sync failed registered');
             }
         } else {
+            isd_write_log('Manual Sync: failed with code '.$status_code);
             $result = 'Error de sincronización: Puede reintentar la tarea.<br><a href="mailto:dev@agenciasimon.com">Contactar soporte</a>';
         }
     }

@@ -55,7 +55,7 @@ function isd_settings_page_content() {
                         </div>
                     </td>
                 </tr>
-                <tr valign="top">
+                <!--tr valign="top">
                     <th scope="row">Automatizar Clientes</th>
                     <td>
                         <div class="custom-control custom-switch">
@@ -63,7 +63,7 @@ function isd_settings_page_content() {
                             <label class="custom-control-label" for="isd_automate_clients" id="clientstatus"><?php echo $automate_clients ? 'Encendido' : 'Apagado'; ?></label>
                         </div>
                     </td>
-                </tr>
+                </tr-->
             </table>
             <?php submit_button( 'Save Settings', 'primary', 'isd_save_settings' ); ?>
         </form>
