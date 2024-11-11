@@ -76,6 +76,11 @@ function isd_logs_page() {
     isd_logs_page_content();
 }
 
+function increase_http_request_timeout( $timeout ) {
+    return 900; // Tiempo en segundos
+}
+add_filter( 'http_request_timeout', 'increase_http_request_timeout' );
+
 function isd_register_sync_page() {
     include plugin_dir_path( __FILE__ ) . 'includes/isd_manual_sync_page_content.php';
     add_submenu_page(

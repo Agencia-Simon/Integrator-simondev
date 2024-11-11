@@ -30,7 +30,7 @@ function SyncProducts(){
     // Procesar la respuesta
     if (is_wp_error($response)) {
         isd_write_log('Manual Sync: '.$response->get_error_message());
-        $result = 'Error al realizar la solicitud: Servicio temporalmente fuera de servicio.<br><a href="mailto:dev@agenciasimon.com">Contactar soporte</a>';
+        $result = 'Tiempo de espera alcanzado, la sincronización continuará en segundo plano sin registro. verificar los productos en un plazo de 3 minutos máximo<br><a href="mailto:dev@agenciasimon.com">Contactar soporte</a>';
     } else {
         $status_code = wp_remote_retrieve_response_code($response);
         if ($status_code == 200) {
