@@ -1,9 +1,10 @@
 <?php
 /**
  * Plugin Name: Integrator Simon.dev
- * Description: Un plugin integrador de Simon.dev
- * Version: 1.0.4
+ * Description: Un plugin de integración entre Dobra y woocommerce
+ * Version: 1.0
  * Author: Agencia Simon
+ * Web: agenciasimon.com
  * developer: Tomas Vargas
  * Contact: dev@agenciasimon.com
  * License: GPL2
